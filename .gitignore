@@ -47,5 +47,8 @@ coverage/
 .idea/
 .vscode/
 
+# pnpm auto-regenerates this when build approvals are pending
+pnpm-workspace.yaml
+
 # project-local logs
 /1.txt
