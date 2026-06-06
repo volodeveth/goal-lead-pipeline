@@ -1,0 +1,40 @@
+name: ci
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm prisma generate
+        env:
+          DATABASE_URL: postgresql://noop:noop@localhost:5432/noop
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+        env:
+          OPENROUTER_API_KEY: test
+          TELEGRAM_BOT_TOKEN: test
+          TELEGRAM_CHAT_ID: test
+          ADMIN_PASSWORD: ci-password-1234
+          DATABASE_URL: postgresql://noop:noop@localhost:5432/noop
+      - run: pnpm build
+        env:
+          OPENROUTER_API_KEY: test
+          TELEGRAM_BOT_TOKEN: test
+          TELEGRAM_CHAT_ID: test
+          ADMIN_PASSWORD: ci-password-1234
+          DATABASE_URL: postgresql://noop:noop@localhost:5432/noop
