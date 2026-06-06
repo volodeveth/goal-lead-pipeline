@@ -1,26 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+.ciel-input {
+  display: block;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgb(64 64 64);
+  background: rgb(23 23 23);
+  padding: 0.625rem 1rem;
+  color: rgb(245 245 245);
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.ciel-input::placeholder {
+  color: rgb(115 115 115);
+}
+
+.ciel-input:focus {
+  border-color: rgb(251 191 36);
+  box-shadow: 0 0 0 2px rgb(251 191 36 / 0.3);
 }
