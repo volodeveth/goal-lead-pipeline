@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Lead {
+  id                String        @id @default(cuid())
+  requestId         String        @unique
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  name              String
+  email             String
+  phone             String
+  company           String?
+  serviceInterest   String[]
+  budgetRange       String?
+  message           String        @db.Text
+  utmSource         String?
+  utmMedium         String?
+  utmCampaign       String?
+
+  status            LeadStatus    @default(PENDING)
+  failureReason     String?
+
+  summary           String?       @db.Text
+  temperature       Temperature?
+  intent            String?
+  priority          Int?
+  confidence        Float?
+  reasoning         String?       @db.Text
+  enrichedAt        DateTime?
+
+  notifiedAt        DateTime?
+  telegramMessageId String?
+
+  @@index([status])
+  @@index([temperature])
+  @@index([createdAt])
+}
+
+enum LeadStatus {
+  PENDING
+  ENRICHED
+  NOTIFIED
+  ENRICH_FAILED
+  NOTIFY_FAILED
+}
+
+enum Temperature {
+  HOT
+  WARM
+  COLD
+}
