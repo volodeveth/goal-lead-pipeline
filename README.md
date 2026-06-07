@@ -34,6 +34,7 @@ pnpm dev                          # http://localhost:3000
 ```
 
 Then open:
+
 - `http://localhost:3000` — landing + form
 - `http://localhost:3000/admin` — Basic Auth (`ADMIN_USER` / `ADMIN_PASSWORD`)
 

@@ -134,7 +134,7 @@ export default function LeadForm() {
           {SERVICES.map((s) => (
             <label
               key={s}
-              className="flex cursor-pointer items-center gap-2 rounded-full border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-200 has-[:checked]:border-amber-400 has-[:checked]:bg-amber-400/10 has-[:checked]:text-amber-200 hover:border-amber-400"
+              className="flex cursor-pointer items-center gap-2 rounded-full border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-200 hover:border-amber-400 has-[:checked]:border-amber-400 has-[:checked]:bg-amber-400/10 has-[:checked]:text-amber-200"
             >
               <input
                 type="checkbox"

@@ -92,9 +92,7 @@ describe("sendTelegramNotification", () => {
   });
 
   it("throws TelegramError after exhausting retries on 5xx", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockImplementation(async () => new Response("boom", { status: 503 }));
+    const fetchMock = vi.fn().mockImplementation(async () => new Response("boom", { status: 503 }));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(

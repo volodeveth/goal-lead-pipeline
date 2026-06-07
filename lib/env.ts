@@ -26,9 +26,7 @@ export function env(): Env {
   if (cached) return cached;
   const parsed = EnvSchema.safeParse(process.env);
   if (!parsed.success) {
-    const issues = parsed.error.issues
-      .map((i) => `${i.path.join(".")}: ${i.message}`)
-      .join("; ");
+    const issues = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
     throw new Error(`Invalid environment variables: ${issues}`);
   }
   cached = parsed.data;

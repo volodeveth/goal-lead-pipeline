@@ -15,9 +15,7 @@ type Row = {
 
 export default function LeadRow({ lead }: { lead: Row }) {
   const latencyMs =
-    lead.notifiedAt && lead.createdAt
-      ? lead.notifiedAt.getTime() - lead.createdAt.getTime()
-      : null;
+    lead.notifiedAt && lead.createdAt ? lead.notifiedAt.getTime() - lead.createdAt.getTime() : null;
   return (
     <tr className="border-b border-neutral-800 align-top">
       <td className="px-3 py-3 text-xs text-neutral-400">

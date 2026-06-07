@@ -26,9 +26,7 @@ async function callOnce(client: OpenAI, model: string, userPrompt: string): Prom
   return res.choices[0]?.message?.content ?? "";
 }
 
-type ParseResult =
-  | { ok: true; data: EnrichmentResult }
-  | { ok: false; reason: string };
+type ParseResult = { ok: true; data: EnrichmentResult } | { ok: false; reason: string };
 
 function tryParse(raw: string): ParseResult {
   let parsed: unknown;
@@ -48,13 +46,7 @@ export async function enrichLead(
   lead: NormalizedLead,
   opts: EnrichLeadOptions,
 ): Promise<EnrichmentResult> {
-  const {
-    client,
-    model,
-    schemaRetries = 1,
-    networkRetries = 3,
-    minTimeoutMs = 500,
-  } = opts;
+  const { client, model, schemaRetries = 1, networkRetries = 3, minTimeoutMs = 500 } = opts;
 
   const basePrompt = buildUserPrompt(lead as unknown as Record<string, unknown>);
 
