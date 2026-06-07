@@ -52,3 +52,8 @@ pnpm-workspace.yaml
 
 # project-local logs
 /1.txt
+/builderror.txt
+
+# debug script scratch files
+/scripts/*.out.json
+/scripts/test-*.json
