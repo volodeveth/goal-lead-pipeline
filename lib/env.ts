@@ -6,7 +6,7 @@ const EnvSchema = z.object({
   DATABASE_URL_TEST: z.url().optional(),
   OPENROUTER_API_KEY: z.string().min(1),
   OPENROUTER_HTTP_REFERER: z.url().optional(),
-  OPENROUTER_X_TITLE: z.string().default("Ціль Lead Pipeline"),
+  OPENROUTER_X_TITLE: z.string().default("Goal Lead Pipeline"),
   OPENROUTER_MODEL: z.string().default("deepseek/deepseek-v3.2-exp"),
   TELEGRAM_BOT_TOKEN: z.string().min(1),
   TELEGRAM_CHAT_ID: z.string().min(1),
