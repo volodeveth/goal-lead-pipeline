@@ -4,7 +4,8 @@
 
 A form submission on a landing page is validated, normalized, persisted, enriched by an LLM (DeepSeek 3.2 via OpenRouter), classified (`HOT`/`WARM`/`COLD` + intent + priority + reasoning), and surfaced to marketers in Telegram — all within ~5 seconds.
 
-- **Live demo:** _set after Vercel deploy_
+- **Live demo:** https://goal-lead-pipeline.vercel.app
+- **Admin dashboard:** https://goal-lead-pipeline.vercel.app/admin (Basic Auth — credentials shared privately with the reviewer)
 - **Stack:** Next.js 16 · TypeScript · Prisma 6 · Postgres (Neon) · OpenRouter (DeepSeek 3.2) · Telegram Bot API · Tailwind 4 · Vitest
 
 ## Architecture
@@ -40,19 +41,25 @@ Then open:
 
 ## Example payload
 
+Save as `payload.json` (UTF-8) and POST it. `--data-binary @file` is recommended over `-d` so curl doesn't re-encode the body on platforms whose shell isn't UTF-8 by default (e.g. Windows).
+
 ```bash
-curl -X POST http://localhost:3000/api/leads \
-  -H "content-type: application/json" \
-  -d '{
-    "name": "Олена Іваненко",
-    "email": "OLENA@gmail.com  ",
-    "phone": "+38 (097) 123-45-67",
-    "company": "Acme LLC",
-    "serviceInterest": ["SEO", "Контекстна реклама"],
-    "budgetRange": "5k-15k",
-    "message": "Потрібно швидко запустити Google Ads на новий продукт",
-    "utm": { "source": "facebook", "medium": "cpc", "campaign": "spring24" }
-  }'
+cat > payload.json <<'JSON'
+{
+  "name": "Олена Іваненко",
+  "email": "OLENA@gmail.com  ",
+  "phone": "+38 (097) 123-45-67",
+  "company": "Acme LLC",
+  "serviceInterest": ["SEO", "Контекстна реклама"],
+  "budgetRange": "5k-15k",
+  "message": "Потрібно швидко запустити Google Ads на новий продукт",
+  "utm": { "source": "facebook", "medium": "cpc", "campaign": "spring24" }
+}
+JSON
+
+curl -X POST https://goal-lead-pipeline.vercel.app/api/leads \
+  -H "content-type: application/json; charset=utf-8" \
+  --data-binary @payload.json
 ```
 
 **Response (202):**
