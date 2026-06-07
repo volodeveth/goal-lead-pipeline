@@ -1,47 +1,47 @@
 # Ціль — AI Lead Processing Pipeline
 
-> MVP backend + landing for the «Ціль» marketing agency. Built as a test task for the AI Specialist role.
+> MVP-бекенд + лендинг для маркетингової агенції «Ціль». Виконано як тестове завдання на роль AI Specialist.
 
-A form submission on a landing page is validated, normalized, persisted, enriched by an LLM (DeepSeek 3.2 via OpenRouter), classified (`HOT`/`WARM`/`COLD` + intent + priority + reasoning), and surfaced to marketers in Telegram — all within ~5 seconds.
+Заявка з форми лендингу валідується, нормалізується, зберігається, збагачується LLM (DeepSeek 3.2 через OpenRouter), класифікується (`HOT`/`WARM`/`COLD` + intent + priority + reasoning) і доставляється маркетологам у Telegram — все за ~5 секунд.
 
 - **Live demo:** https://goal-lead-pipeline.vercel.app
-- **Admin dashboard:** https://goal-lead-pipeline.vercel.app/admin (Basic Auth — credentials shared privately with the reviewer)
-- **Stack:** Next.js 16 · TypeScript · Prisma 6 · Postgres (Neon) · OpenRouter (DeepSeek 3.2) · Telegram Bot API · Tailwind 4 · Vitest
+- **Адмінка:** https://goal-lead-pipeline.vercel.app/admin (Basic Auth — креденшіали передаю рев'юверу окремо)
+- **Стек:** Next.js 16 · TypeScript · Prisma 6 · Postgres (Neon) · OpenRouter (DeepSeek 3.2) · Telegram Bot API · Tailwind 4 · Vitest
 
-## Architecture
+## Архітектура
 
 ```
-Browser (form) → POST /api/leads
+Browser (форма) → POST /api/leads
   ├─ zod + normalize + INSERT(PENDING)
-  └─ return 202 — instant ACK
+  └─ return 202 — миттєвий ACK клієнту
 
-after-response background (Next.js 16 `after()`):
-  enrichLead (DeepSeek)  → UPDATE(ENRICHED)
-  sendTelegramNotification → UPDATE(NOTIFIED | NOTIFY_FAILED)
+фонова обробка (Next.js 16 `after()`):
+  enrichLead (DeepSeek)        → UPDATE(ENRICHED)
+  sendTelegramNotification     → UPDATE(NOTIFIED | NOTIFY_FAILED)
 ```
 
-State machine: `PENDING → ENRICHED → NOTIFIED`. Failure branches: `ENRICH_FAILED`, `NOTIFY_FAILED` — leads are never lost; they surface in `/admin` for manual follow-up.
+Стейт-машина: `PENDING → ENRICHED → NOTIFIED`. Гілки фейлу: `ENRICH_FAILED`, `NOTIFY_FAILED` — заявка ніколи не губиться, вона з'являється в `/admin` для ручного follow-up.
 
-Full design doc: [`docs/superpowers/specs/2026-06-06-ciel-lead-pipeline-design.md`](docs/superpowers/specs/2026-06-06-ciel-lead-pipeline-design.md).
-Implementation plan: [`docs/superpowers/plans/2026-06-06-ciel-lead-pipeline.md`](docs/superpowers/plans/2026-06-06-ciel-lead-pipeline.md).
+Повна спека: [`docs/superpowers/specs/2026-06-06-ciel-lead-pipeline-design.md`](docs/superpowers/specs/2026-06-06-ciel-lead-pipeline-design.md).
+План імплементації: [`docs/superpowers/plans/2026-06-06-ciel-lead-pipeline.md`](docs/superpowers/plans/2026-06-06-ciel-lead-pipeline.md).
 
-## Quick start (local)
+## Швидкий старт локально
 
 ```bash
 pnpm install
-cp .env.example .env.local        # fill secrets — see "External services" below
-pnpm prisma migrate dev           # creates schema in your Neon DB
+cp .env.example .env.local        # заповнити секрети — див. "Зовнішні сервіси" нижче
+pnpm prisma migrate dev           # створить схему у вашій Neon БД
 pnpm dev                          # http://localhost:3000
 ```
 
-Then open:
+Потім відкрити:
 
-- `http://localhost:3000` — landing + form
+- `http://localhost:3000` — лендинг + форма
 - `http://localhost:3000/admin` — Basic Auth (`ADMIN_USER` / `ADMIN_PASSWORD`)
 
-## Example payload
+## Приклад payload
 
-Save as `payload.json` (UTF-8) and POST it. `--data-binary @file` is recommended over `-d` so curl doesn't re-encode the body on platforms whose shell isn't UTF-8 by default (e.g. Windows).
+Збережіть як `payload.json` (UTF-8) і надішліть POST. `--data-binary @file` краще за `-d`, бо curl не перекодує тіло на платформах, де shell не за замовчуванням у UTF-8 (наприклад Windows).
 
 ```bash
 cat > payload.json <<'JSON'
@@ -62,91 +62,91 @@ curl -X POST https://goal-lead-pipeline.vercel.app/api/leads \
   --data-binary @payload.json
 ```
 
-**Response (202):**
+**Відповідь (202):**
 
 ```json
 { "id": "clxx...", "status": "accepted", "message": "Заявку прийнято" }
 ```
 
-Within a few seconds, a Telegram message arrives and `/admin` shows the row with status `NOTIFIED`, temperature, intent, priority, summary, and reasoning.
+За кілька секунд у Telegram прийде картка з лідом, а в `/admin` з'явиться рядок зі статусом `NOTIFIED`, температурою, intent, priority, summary і reasoning.
 
-## External services
+## Зовнішні сервіси
 
-### 1. Telegram bot
+### 1. Telegram-бот
 
-1. Open [@BotFather](https://t.me/BotFather), send `/newbot`, follow prompts → save `TELEGRAM_BOT_TOKEN`.
-2. Create a group/channel for notifications, add your bot as admin.
-3. Send any message there, then visit `https://api.telegram.org/bot<TOKEN>/getUpdates` → copy `chat.id` → `TELEGRAM_CHAT_ID`.
+1. Відкрити [@BotFather](https://t.me/BotFather), `/newbot`, пройти діалог → зберегти `TELEGRAM_BOT_TOKEN`.
+2. Створити групу/канал для сповіщень, додати бота як учасника (за бажанням — як адміна, тоді не доведеться вимикати privacy mode).
+3. Написати в чаті будь-яке повідомлення, потім відкрити `https://api.telegram.org/bot<TOKEN>/getUpdates` → скопіювати `chat.id` → `TELEGRAM_CHAT_ID` (для груп — негативне число).
 
 ### 2. Neon Postgres
 
-1. Sign up at [neon.tech](https://neon.tech), create a project (Postgres 16+).
-2. Copy "Pooled connection" → `DATABASE_URL` and "Direct connection" → `DIRECT_URL`.
-3. (Optional, for tests) create a second branch → `DATABASE_URL_TEST`.
+1. Зареєструватися на [neon.tech](https://neon.tech), створити проект (Postgres 16+).
+2. Скопіювати **Pooled connection** → `DATABASE_URL` та **Direct connection** → `DIRECT_URL`.
+3. (Опційно, для інтеграційних тестів) створити окрему гілку → `DATABASE_URL_TEST`.
 
 ### 3. OpenRouter
 
-1. Sign up at [openrouter.ai](https://openrouter.ai), add a small credit.
-2. Create an API key → `OPENROUTER_API_KEY`.
-3. Default model is `deepseek/deepseek-v3.2-exp`. Override with `OPENROUTER_MODEL`.
+1. Зареєструватися на [openrouter.ai](https://openrouter.ai), поповнити невеликим кредитом ($5 вистачає надовго).
+2. Створити API-ключ → `OPENROUTER_API_KEY`.
+3. Дефолтна модель — `deepseek/deepseek-v3.2-exp`. Перевизначити можна через `OPENROUTER_MODEL`.
 
-### 4. (Optional) Upstash Redis for rate-limiting
+### 4. (Опційно) Upstash Redis для rate-limiting
 
-If not set, the rate-limiter no-ops with a warning — safe for dev.
+Якщо не задано — rate-limiter мовчки no-op'ить з warning'ом. Безпечно для dev.
 
-## Deploy (Vercel)
+## Деплой (Vercel)
 
-1. Push to GitHub.
-2. Import the repo in Vercel — it auto-detects Next.js.
-3. Add every variable from `.env.example` in the Vercel project settings.
-4. After the first deploy, run migrations against the prod DB from your local machine:
+1. Запушити в GitHub.
+2. Імпортувати репо у Vercel — він автоматично визначить Next.js.
+3. Додати всі змінні з `.env.example` у Vercel project settings.
+4. Після першого деплою прокатити міграції проти прод БД з локальної машини:
 
 ```bash
 DATABASE_URL=<prod> DIRECT_URL=<prod-direct> pnpm prisma migrate deploy
 ```
 
-5. Set `APP_BASE_URL` to your Vercel URL — the Telegram message links back here.
+5. Виставити `APP_BASE_URL` як ваш Vercel URL — за цим посиланням Telegram-картка лінкує назад у `/admin`.
 
-## Scripts
+## Скрипти
 
 ```
-pnpm dev          # local dev
-pnpm build        # production build
-pnpm start        # serve production build
-pnpm test         # unit + integration tests
-pnpm typecheck    # strict typescript check
-pnpm lint         # next lint
+pnpm dev          # локальний dev-сервер
+pnpm build        # production-збірка
+pnpm start        # запустити production-збірку
+pnpm test         # unit + integration тести
+pnpm typecheck    # strict TypeScript перевірка
+pnpm lint         # ESLint
 pnpm format       # prettier --write
 pnpm format:check # prettier --check
 ```
 
-## Testing
+## Тести
 
 ```bash
 pnpm test
 ```
 
-- **Unit tests** run without any DB and cover: zod schemas, normalization, MarkdownV2 escape + formatter, Telegram notify (with mocked `fetch`), enrichLead (with mocked OpenRouter client), Basic Auth.
-- **Integration tests** (`processLead`, `api-leads`) require `DATABASE_URL_TEST` (a Neon dev branch). They auto-skip if absent — so CI without a DB still passes.
+- **Unit-тести** не потребують БД і покривають: zod-схеми, нормалізацію, MarkdownV2-екранування + форматтер, Telegram notify (через mock `fetch`), enrichLead (через mock OpenRouter-клієнта), Basic Auth.
+- **Інтеграційні тести** (`processLead`, `api-leads`) потребують `DATABASE_URL_TEST` (окрема Neon-гілка). Автоматично skip'аються якщо змінної немає — тож CI без БД проходить.
 
-## What's intentionally not included
+## Що свідомо НЕ включено
 
-- Captcha / advanced antibot (rate-limit is enough for a demo).
-- Webhook signature verification for Telegram (bot only sends).
-- Email channel.
+- Captcha / advanced antibot — для демо вистачає rate-limit.
+- Webhook signature verification для Telegram (бот тільки шле, не приймає).
+- Email-канал.
 - Token-cost dashboard.
-- Multilingual admin UI.
-- Real CRM integration.
-- Sentry / external APM.
+- Багатомовний UI адмінки.
+- Інтеграція з реальною CRM.
+- Sentry / зовнішній APM.
 
-These would be the next steps for a true production rollout — documented for transparency.
+Це наступні кроки для повноцінного production-роллауту — задокументовано для прозорості.
 
-## Repo conventions
+## Конвенції репо
 
 - Conventional Commits.
-- Branches: `main` (prod), `develop` (preview), `feature/*` per change.
+- Гілки: `main` (prod), `develop` (preview), `feature/*` під кожну зміну.
 - CI: GitHub Actions → install → `prisma generate` → format-check → lint → typecheck → test → build.
 
-## Contact
+## Контакт
 
-Submitted by the candidate for the «Спеціаліст з ШІ» role at marketing agency «Ціль».
+Виконано кандидатом на роль «Спеціаліст з ШІ» у маркетинговій агенції «Ціль».
