@@ -3,6 +3,7 @@ import { verifyBasicAuth } from "@/lib/basicAuth";
 
 export const config = {
   matcher: ["/admin/:path*", "/api/leads"],
+  runtime: "nodejs",
 };
 
 export function middleware(req: NextRequest) {
