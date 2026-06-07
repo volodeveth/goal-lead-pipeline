@@ -22,9 +22,6 @@ Browser (форма) → POST /api/leads
 
 Стейт-машина: `PENDING → ENRICHED → NOTIFIED`. Гілки фейлу: `ENRICH_FAILED`, `NOTIFY_FAILED` — заявка ніколи не губиться, вона з'являється в `/admin` для ручного follow-up.
 
-Повна спека: [`docs/superpowers/specs/2026-06-06-ciel-lead-pipeline-design.md`](docs/superpowers/specs/2026-06-06-ciel-lead-pipeline-design.md).
-План імплементації: [`docs/superpowers/plans/2026-06-06-ciel-lead-pipeline.md`](docs/superpowers/plans/2026-06-06-ciel-lead-pipeline.md).
-
 ## Швидкий старт локально
 
 ```bash
