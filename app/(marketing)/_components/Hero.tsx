@@ -2,7 +2,7 @@
 export default function Hero() {
   return (
     <section className="flex flex-col items-start gap-6 pt-8">
-      <img src="/logo.svg" alt="Ціль" height={48} className="h-12 w-auto text-white" />
+      <img src="/logo.svg" alt="Ціль" height={48} className="h-12 w-auto" />
       <h1 className="max-w-3xl text-4xl leading-tight font-bold text-white md:text-6xl">
         Запустимо вашу маркетингову кампанію за{" "}
         <span className="bg-gradient-to-r from-amber-400 to-rose-400 bg-clip-text text-transparent">
